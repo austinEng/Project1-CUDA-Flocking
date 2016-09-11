@@ -64,7 +64,7 @@ int main(int argc, char* argv[]);
 //====================================
 // Main loop
 //====================================
-void mainLoop();
+float mainLoop(int frames = -1);
 void errorCallback(int error, const char *description);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);

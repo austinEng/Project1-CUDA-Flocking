@@ -18,7 +18,7 @@
 #define COHERENT_GRID 1
 
 // LOOK-1.2 - change this to adjust particle count in the simulation
-const int N_FOR_VIS = 20000;
+int N_FOR_VIS = 20000;
 const float DT = 0.2f;
 
 /**
@@ -26,9 +26,9 @@ const float DT = 0.2f;
 */
 int main(int argc, char* argv[]) {
   projectName = "565 CUDA Intro: Boids";
-
+  N_FOR_VIS = std::atoi(argv[2]);
   if (init(argc, argv)) {
-    mainLoop();
+    std::cout << N_FOR_VIS << ": " << mainLoop(std::atoi(argv[1])) << "ms" << std::endl;
     Boids::endSimulation();
     return 0;
   } else {
@@ -215,15 +215,17 @@ void initShaders(GLuint * program) {
     cudaGLUnmapBufferObject(boidVBO_velocities);
   }
 
-  void mainLoop() {
+  float mainLoop(int frames) {
     double fps = 0;
     double timebase = 0;
     int frame = 0;
 
-    Boids::unitTest(); // LOOK-1.2 We run some basic example code to make sure
+    //Boids::unitTest(); // LOOK-1.2 We run some basic example code to make sure
                        // your CUDA development setup is ready to go.
-
-    while (!glfwWindowShouldClose(window)) {
+    int f = 0;
+    float avg = 0;
+    float milliseconds = 0;
+    while (f != frames && !glfwWindowShouldClose(window)) {
       glfwPollEvents();
 
       frame++;
@@ -235,7 +237,16 @@ void initShaders(GLuint * program) {
         frame = 0;
       }
 
+      cudaEvent_t start, stop;
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+      cudaEventRecord(start);
       runCUDA();
+      cudaEventRecord(stop);
+      cudaEventSynchronize(stop);
+      cudaEventElapsedTime(&milliseconds, start, stop);
+      avg = ((avg * f) + milliseconds) / (f+1);
+      f++;
 
       std::ostringstream ss;
       ss << "[";
@@ -261,6 +272,7 @@ void initShaders(GLuint * program) {
     }
     glfwDestroyWindow(window);
     glfwTerminate();
+    return avg;
   }
 
 

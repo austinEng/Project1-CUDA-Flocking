@@ -33,7 +33,7 @@ char* loadFile(const char *fname, GLint &fSize) {
         file.seekg(0, ios::beg);
         file.read(memblock, size);
         file.close();
-        std::cout << "file " << fname << " loaded" << std::endl;
+        //std::cout << "file " << fname << " loaded" << std::endl;
         return memblock;
     }
 
